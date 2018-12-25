@@ -1,8 +1,10 @@
+import api from './api';
 class App {
     constructor() {
         this.repositorios = [];
 
         this.eleForm = document.getElementById('repo-form');
+        this.eleInput = document.querySelector('input[name=repositorio]')
         this.eleBaseLista = document.getElementById('repo-list');
         this.manejoRegistros();
     }
@@ -11,16 +13,25 @@ class App {
         this.eleForm.onsubmit = evento => this.addRepositorio(evento);
     }
 
-    addRepositorio(evento){
+    async addRepositorio(evento){
         evento.preventDefault();
 
-        this.repositorios.push({
-            nome: 'www.rocketseat.com.br',
-            descricao: 'Tire a sua ideia do papel e de vida a sua startup',
-            avatar_url: 'https://avatars0.githubusercontent.com/u/28929274?v=4',
-            html_url: 'http://github.com/rocketseat/'
-        });
+        const valorInput = this.eleInput.value;
+        if(valorInput.lenght === 0)
+            return;
+
+        const response = await api.get(`/repos/${valorInput}`);
         
+        const {name, description, html_url, owner: {avatar_url} } = response.data;
+
+        this.repositorios.push({
+            nome: name,
+            descricao: description,
+            avatar_url: avatar_url,
+            html_url: html_url
+        });
+        this.eleInput.value = '';
+
         this.renderiza();
     }
 
